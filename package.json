@@ -1,20 +1,22 @@
 {
   "name": "gulp-fb",
-  "version": "0.0.1",
   "description": "",
+  "version": "0.0.2",
   "main": "index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/fireball-x/gulp-fb"
   },
-  "author": "Jare Guo",
+  "author": {
+    "name": "Jare Guo"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/fireball-x/gulp-fb/issues"
   },
   "homepage": "https://github.com/fireball-x/gulp-fb",
   "dependencies": {
-    "gulp-util": "^3.0.0",
-    "through": "^2.3.4"
-  }
+    "gulp-util": "",
+    "through": ""
+  },
 }

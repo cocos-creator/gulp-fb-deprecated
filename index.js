@@ -4,7 +4,9 @@
 
 var fs = require('fs');
 var Path = require('path');
+var Stream = require("stream");
 var through = require('through');
+//var through2 = require('through2');
 
 var gulp = require('gulp');
 var gutil = require('gulp-util');
@@ -117,4 +119,12 @@ module.exports = {
     toFileList: toFileList,
     generateRunner: generateRunner,
     generateReference: generateReference,
+    callback: (function (callback) {
+        var stream = new Stream.Transform({ objectMode: true });
+        stream._transform = function (file, unused, cb) {
+            callback()
+            cb(null, file);
+        }
+        return stream;
+    }),
 };
