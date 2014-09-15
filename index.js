@@ -19,6 +19,7 @@ var toFileList = function () {
         if (file.isStream()) return this.emit('error', new PluginError('toFileList', 'Streaming not supported'));
         if (!firstFile) firstFile = file;
         fileList.push(file.relative);
+        //console.dir(file);
     }
     function end() {
         if (firstFile) {
@@ -40,9 +41,19 @@ var generateRunner = (function () {
     var _trySortByDepends = function (fileList, srcList) {
         var indexInSrc = function (filePath) {
             var basename = Path.basename(filePath);
+            var filename = Path.basename(basename, Path.extname(basename));
             for (var i = 0; i < srcList.length; i++) {
-                if (Path.basename(srcList[i]) === basename) {
+                var srcName = Path.basename(srcList[i]);
+                if (srcName === basename) {
                     return i;
+                }
+                // 按名字相近的模块匹配顺序
+                if (srcName.substring(0, filename.length) === filename) {
+                    return i + 0.5;
+                }
+                var srcFileName = Path.basename(srcName, Path.extname(srcName));
+                if (filename.substring(0, srcFileName.length) === srcFileName) {
+                    return i + 0.6;
                 }
             }
             return -1;
