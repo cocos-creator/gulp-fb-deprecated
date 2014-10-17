@@ -40,10 +40,11 @@ var generateRunner = (function () {
 
     var _trySortByDepends = function (fileList, srcList) {
         var indexInSrc = function (filePath) {
-            var basename = Path.basename(filePath);
-            var filename = Path.basename(basename, Path.extname(basename));
-            for (var i = 0; i < srcList.length; i++) {
-                var srcName = Path.basename(srcList[i]);
+            function matchName(srcName, basename, i) {
+                srcName = srcName.toLowerCase();
+                basename = basename.toLowerCase();
+                //console.log(srcName + ' ' + basename + ' ' + i);
+                var filename = Path.basename(basename, Path.extname(basename));
                 if (srcName === basename) {
                     return i;
                 }
@@ -54,6 +55,21 @@ var generateRunner = (function () {
                 var srcFileName = Path.basename(srcName, Path.extname(srcName));
                 if (filename.substring(0, srcFileName.length) === srcFileName) {
                     return i + 0.6;
+                }
+                return -1;
+            }
+            //console.log('filePath ' + filePath);
+            // test basename (with ext)
+            var basename = Path.basename(filePath);
+            // test filename (without ext)
+            for (var i = 0; i < srcList.length; i++) {
+                var srcName = Path.basename(srcList[i]);
+                var index = matchName(srcName, basename, i);
+                if (index === -1) {
+                    index = matchName('test' + srcName, basename, i);
+                }
+                if (index !== -1) {
+                    return index;
                 }
             }
             return -1;
