@@ -4,9 +4,10 @@
 
 var fs = require('fs');
 var Path = require('path');
-var Stream = require("stream");
-var through = require('through');
+var Stream = require('stream');
+//var through = require('through');
 //var through2 = require('through2');
+var es = require('event-stream');
 
 var gulp = require('gulp');
 var gutil = require('gulp-util');
@@ -33,7 +34,7 @@ var toFileList = function () {
         this.emit('data', firstFile);
         this.emit('end');
     }
-    return through(write, end);
+    return es.through(write, end);
 };
 
 var generateRunner = (function () {
@@ -66,12 +67,6 @@ var generateRunner = (function () {
                 var srcName = Path.basename(srcList[i]);
                 var index = matchName(srcName, basename, i);
                 if (index === -1) {
-                    index = matchName('test-' + srcName, basename, i);
-                }
-                if (index === -1) {
-                    index = matchName('test_' + srcName, basename, i);
-                }
-                if (index === -1) {
                     index = matchName('test' + srcName, basename, i);
                 }
                 if (index !== -1) {
@@ -83,7 +78,7 @@ var generateRunner = (function () {
         fileList.sort(function (lhs, rhs) {
             return indexInSrc(lhs) - indexInSrc(rhs);
         });
-    }
+    };
 
     var _generateRunnerContents = function (template, fileList, dest, title) {
         var scriptElements = '';
@@ -120,7 +115,7 @@ var generateRunner = (function () {
 
             this.emit('end');
         }
-        return through(write);
+        return es.through(write);
     };
 })();
 
@@ -128,7 +123,7 @@ var generateReference = function (files, destPath) {
     var destDir = Path.dirname(destPath);
     return gulp.src(files, { read: false, base: './' })
                 .pipe(toFileList())
-                .pipe(through(function (file) {
+                .pipe(es.through(function (file) {
                     function generateContents(fileList) {
                         var scriptElements = '';
                         for (var i = 0; i < fileList.length; i++) {
@@ -148,6 +143,15 @@ var generateReference = function (files, destPath) {
                 .pipe(gulp.dest(destDir));
 };
 
+function wrapScope () {
+    var header = new Buffer("(function () {\n");
+    var footer = new Buffer("})();\n");
+    return es.through(function (file) {
+        file.contents = Buffer.concat([header, file.contents, footer]);
+        this.emit('data', file);
+    });
+}
+
 module.exports = {
     toFileList: toFileList,
     generateRunner: generateRunner,
@@ -155,9 +159,10 @@ module.exports = {
     callback: (function (callback) {
         var stream = new Stream.Transform({ objectMode: true });
         stream._transform = function (file, unused, cb) {
-            callback()
+            callback();
             cb(null, file);
-        }
+        };
         return stream;
     }),
+    wrapScope: wrapScope
 };
