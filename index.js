@@ -67,6 +67,12 @@ var generateRunner = (function () {
                 var srcName = Path.basename(srcList[i]);
                 var index = matchName(srcName, basename, i);
                 if (index === -1) {
+                    index = matchName('test-' + srcName, basename, i);
+                }
+                if (index === -1) {
+                    index = matchName('test_' + srcName, basename, i);
+                }
+                if (index === -1) {
                     index = matchName('test' + srcName, basename, i);
                 }
                 if (index !== -1) {
