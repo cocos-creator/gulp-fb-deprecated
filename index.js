@@ -158,6 +158,15 @@ function wrapScope () {
     });
 }
 
+function wrapModule (templatePath) {
+    var template = fs.readFileSync(templatePath);
+    return es.through(function(file) {
+        var data = { file: file, contents: '\n\n' + file.contents.toString() };
+        file.contents = new Buffer(gutil.template(template, data));
+        this.emit('data', file);
+    });
+}
+
 module.exports = {
     toFileList: toFileList,
     generateRunner: generateRunner,
@@ -170,5 +179,6 @@ module.exports = {
         };
         return stream;
     }),
-    wrapScope: wrapScope
+    wrapScope: wrapScope,
+    wrapModule: wrapModule,
 };
