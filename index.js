@@ -82,7 +82,19 @@ var generateRunner = (function () {
             return -1;
         };
         fileList.sort(function (lhs, rhs) {
-            return indexInSrc(lhs) - indexInSrc(rhs);
+            var retval = indexInSrc(lhs) - indexInSrc(rhs);
+            if (retval !== 0) {
+                return retval;
+            }
+            lhs = Path.basename(lhs);
+            rhs = Path.basename(rhs);
+            if (lhs[0] === '_' && rhs[0] !== '_') {
+                return -1;
+            }
+            else if (lhs[0] !== '_' && rhs[0] === '_') {
+                return 1;
+            }
+            return 0;
         });
     };
 
