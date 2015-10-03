@@ -113,6 +113,12 @@ var generateRunner = (function () {
     };
 
     return function (templatePath, dest, title, lib_min, lib_dev, srcList) {
+        if (lib_dev === undefined) {
+            srcList = [];
+        }
+        else {
+            srcList = srcList || [];
+        }
         var template = fs.readFileSync(templatePath);
 
         function write(file) {
@@ -122,14 +128,16 @@ var generateRunner = (function () {
             file.contents = _generateRunnerContents(template, lib_min.concat(fileList), dest, title);
             file.path = Path.join(file.base, Path.basename(templatePath));
             this.emit('data', file);
-            // runner.dev.html
-            var ext = Path.extname(file.path);
-            var filename = Path.basename(file.path, ext) + '.dev' + ext;
-            this.emit('data', new gutil.File({
-                contents: _generateRunnerContents(template, lib_dev.concat(fileList), dest, title),
-                base: file.base,
-                path: Path.join(file.base, filename)
-            }));
+            if (lib_dev) {
+                // runner.dev.html
+                var ext = Path.extname(file.path);
+                var filename = Path.basename(file.path, ext) + '.dev' + ext;
+                this.emit('data', new gutil.File({
+                    contents: _generateRunnerContents(template, lib_dev.concat(fileList), dest, title),
+                    base: file.base,
+                    path: Path.join(file.base, filename)
+                }));
+            }
 
             this.emit('end');
         }
