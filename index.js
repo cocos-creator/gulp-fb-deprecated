@@ -39,8 +39,8 @@ var toFileList = function () {
 
 var generateRunner = (function () {
 
-    var _trySortByDepends = function (fileList, srcList) {
-        var indexInSrc = function (filePath) {
+    function trySortByDepends (fileList, srcList) {
+        function indexInSrc (filePath) {
             function matchName(srcName, basename, i) {
                 srcName = srcName.toLowerCase();
                 basename = basename.toLowerCase();
@@ -94,7 +94,16 @@ var generateRunner = (function () {
             else if (lhs[0] !== '_' && rhs[0] === '_') {
                 return 1;
             }
-            return 0;
+            // strip extname to make foo.js sorted before foo-bar.js
+            var lhsExtIndex = lhs.lastIndexOf('.');
+            if (lhsExtIndex >= 0) {
+                lhs = lhs.slice(0, lhsExtIndex);
+            }
+            var rhsExtIndex = rhs.lastIndexOf('.');
+            if (rhsExtIndex >= 0) {
+                rhs = rhs.slice(0, rhsExtIndex);
+            }
+            return lhs.localeCompare(rhs);
         });
     };
 
@@ -123,7 +132,7 @@ var generateRunner = (function () {
 
         function write(file) {
             var fileList = file.contents.toString().split(',');
-            _trySortByDepends(fileList, srcList);
+            trySortByDepends(fileList, srcList);
             // runner.html
             file.contents = _generateRunnerContents(template, lib_min.concat(fileList), dest, title);
             file.path = Path.join(file.base, Path.basename(templatePath));
@@ -148,25 +157,25 @@ var generateRunner = (function () {
 var generateReference = function (files, destPath) {
     var destDir = Path.dirname(destPath);
     return gulp.src(files, { read: false, base: './' })
-                .pipe(toFileList())
-                .pipe(es.through(function (file) {
-                    function generateContents(fileList) {
-                        var scriptElements = '';
-                        for (var i = 0; i < fileList.length; i++) {
-                            if (fileList[i]) {
-                                scriptElements += ('/// <reference path="' + Path.relative(destDir, fileList[i]) + '" />\r\n');
-                            }
-                        }
-                        return new Buffer(scriptElements);
+        .pipe(toFileList())
+        .pipe(es.through(function (file) {
+            function generateContents(fileList) {
+                var scriptElements = '';
+                for (var i = 0; i < fileList.length; i++) {
+                    if (fileList[i]) {
+                        scriptElements += ('/// <reference path="' + Path.relative(destDir, fileList[i]) + '" />\r\n');
                     }
-                    var fileList = file.contents.toString().split(',');
-                    file.contents = generateContents(fileList);
-                    file.base = destDir;
-                    file.path = destPath;
-                    this.emit('data', file);
-                    this.emit('end');
-                }))
-                .pipe(gulp.dest(destDir));
+                }
+                return new Buffer(scriptElements);
+            }
+            var fileList = file.contents.toString().split(',');
+            file.contents = generateContents(fileList);
+            file.base = destDir;
+            file.path = destPath;
+            this.emit('data', file);
+            this.emit('end');
+        }))
+        .pipe(gulp.dest(destDir));
 };
 
 function wrapScope () {

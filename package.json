@@ -1,20 +1,20 @@
 {
   "name": "gulp-fb",
   "description": "",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/fireball-x/gulp-fb"
+    "url": "https://github.com/cocos-creator/gulp-fb"
   },
   "author": {
     "name": "Jare Guo"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/fireball-x/gulp-fb/issues"
+    "url": "https://github.com/cocos-creator/gulp-fb/issues"
   },
-  "homepage": "https://github.com/fireball-x/gulp-fb",
+  "homepage": "https://github.com/cocos-creator/gulp-fb",
   "dependencies": {
     "event-stream": "",
     "gulp-util": ""
